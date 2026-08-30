@@ -39,7 +39,7 @@ export default function PortfolioPage() {
   const [totalCash, setTotalCash] = useState(100000000);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/portfolio")
+    fetch("https://qu-backend-e9qw.onrender.com/api/portfolio")
       .then((r) => { if (!r.ok) throw new Error("API loi " + r.status); return r.json(); })
       .then((d) => { setData(d); setLoading(false); })
       .catch((e) => { setError(e.message); setLoading(false); });

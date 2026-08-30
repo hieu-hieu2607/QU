@@ -224,7 +224,7 @@ export default function JournalPage() {
 
   useEffect(() => { 
     setTrades(loadTrades()); 
-    fetch("http://localhost:8000/api/prediction")
+    fetch("https://qu-backend-e9qw.onrender.com/api/prediction")
       .then(r => r.json())
       .then((data: any[]) => {
         const map: Record<string, string> = {};

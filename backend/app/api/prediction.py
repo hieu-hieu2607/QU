@@ -324,51 +324,70 @@ def get_predictions():
             status_code=500,
             detail="Không thể lấy đặc trưng cho bất kỳ mã nào"
         )
-        
+
     df_features = pd.DataFrame(rows)
-    # Ensure correct column order
     df_features = df_features.reindex(columns=feature_cols, fill_value=0)
 
-    df_scaled = df_features
+    # ── BATCH PREDICT: Dự đoán toàn bộ 1 lúc ──────────────────────────────
+    try:
+        raw_preds = models[5].predict(df_features)   # shape: (n_tickers,)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Model predict error: {e}")
+
+    # ── PERCENTILE RANK SCORING (cross-sectional) ──────────────────────────
+    # Chuyển raw predicted return → percentile trong batch hiện tại.
+    # Cổ phiếu tốt nhất trong 73 mã hôm nay = 100đ, kém nhất = 0đ.
+    # Triết lý: ta chỉ quan tâm cổ phiếu nào TỐT HƠN các mã khác (ranking),
+    # không dùng threshold tuyệt đối (vì return kỳ vọng ~0.5-1%/5p tương đương nhau).
+    n = len(raw_preds)
+    # scipy rankdata: lowest=1, highest=n → map về [0, 100]
+    from scipy.stats import rankdata
+    ranks = rankdata(raw_preds)                         # 1..n
+    percentile_scores = (ranks - 1) / (n - 1) * 100    # 0..100
+
+    # ── Lấy giá hiện tại song song ─────────────────────────────────────────
+    prices = {}
+    for ticker in tickers_with_features:
+        try:
+            prices[ticker] = float(
+                yf.Ticker(f"{ticker}.VN").history(period="2d")["Close"].iloc[-1]
+            ) / 1000
+        except:
+            prices[ticker] = 0.0
+
+    # ── Phân loại signal theo Percentile (25/75 quartile) ─────────────────
+    # Top 25%  → "Mua mới"    (Cao)
+    # Bottom 25% → "Bán/Tránh" (Thấp)
+    # Middle 50% → "Nắm giữ"  (Trung bình)
+    BUY_THRESHOLD  = 75.0   # top 25%
+    SELL_THRESHOLD = 25.0   # bottom 25%
+
     results = []
     for i, ticker in enumerate(tickers_with_features):
-        X = df_scaled.iloc[[i]]
+        score_5 = round(float(percentile_scores[i]), 2)
 
-        try:
-            score_5 = float(models[5].predict(X)[0]) * 100
-        except Exception as e:
-            print(f"Predict error {ticker}: {e}")
-            continue
-
-        # Giá hiện tại
-        try:
-            price = float(yf.Ticker(f"{ticker}.VN").history(period="2d")["Close"].iloc[-1]) / 1000
-        except:
-            price = 0.0
-
-        # Signal logic: Turnover Buffer (Hysteresis)
-        if score_5 > 60:
+        if score_5 >= BUY_THRESHOLD:
             signal     = "Mua mới"
             confidence = "Cao"
-        elif score_5 > 45:
-            signal     = "Nắm giữ"
-            confidence = "Trung bình"
-        else:
+        elif score_5 <= SELL_THRESHOLD:
             signal     = "Bán / Tránh"
             confidence = "Thấp"
+        else:
+            signal     = "Nắm giữ"
+            confidence = "Trung bình"
 
         results.append({
             "ticker":           ticker,
             "sector":           SECTOR_MAP.get(ticker, "Khác"),
-            "price":            round(price, 2),
-            "score_5":          round(score_5, 2),
-            "rank":             0,  # sẽ gán sau
+            "price":            round(prices.get(ticker, 0.0), 2),
+            "score_5":          score_5,
+            "rank":             0,
             "confidence":       confidence,
             "signal":           signal,
             "model_trained_at": trained_at,
         })
 
-    # Xếp hạng theo score 5 phiên
+    # Sắp xếp theo percentile score giảm dần và gán rank
     results.sort(key=lambda x: x["score_5"], reverse=True)
     for i, r in enumerate(results):
         r["rank"] = i + 1

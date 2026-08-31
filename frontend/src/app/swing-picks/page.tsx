@@ -7,7 +7,7 @@ import { Brain, TrendingUp, TrendingDown, Minus, RefreshCw, ShieldCheck, Zap, Ta
 import { clsx } from "clsx";
 import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://qu-backend-e9qw.onrender.com/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
 interface AIPrediction {
   ticker: string; sector: string; price: number;
@@ -126,8 +126,8 @@ function TopPickCard({ pick, rank }: { pick: CombinedPick; rank: number }) {
     <div className={clsx(
       "rounded-xl border p-4 flex flex-col gap-3 transition-all",
       rank === 1
-        ? "border-white bg-black shadow-[0_0_8px_rgba(255,255,255,0.5)]"
-        : "border-white/40 bg-black hover:border-white/80"
+        ? "border-primary bg-[#1C1C36] shadow-[0_0_12px_rgba(245,255,171,0.15)]"
+        : "border-white/10 bg-[#1C1C36] hover:border-white/30"
     )}>
       {/* Header */}
       <div className="flex items-start justify-between">
@@ -274,41 +274,32 @@ export default function SwingPicksPage() {
   const hasAI = predictions.length > 0;
 
   return (
-    <main className="min-h-screen bg-black text-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <main className="min-h-screen bg-background text-foreground">
+      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
 
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-1.5 tracking-tight">🎯 Khuyến nghị Lướt sóng</h1>
-            <p className="text-gray-400 text-sm">Điểm kết hợp (100đ) = 50% (Kỹ thuật 60đ + Cơ bản 40đ) + 50% AI XGBoost.</p>
-            {modelTrained && (
-              <p className="text-xs text-gray-600 mt-1">Model AI train lúc: {new Date(modelTrained).toLocaleString("vi-VN")}</p>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            {lastUpdated && (
-              <span className="text-xs text-gray-500 bg-gray-900/50 px-3 py-1.5 rounded-full border border-gray-800">
-                Cập nhật: <span className="text-gray-300 font-semibold">{lastUpdated.toLocaleTimeString("vi-VN")}</span>
-              </span>
-            )}
-            <button onClick={loadData} disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs rounded-lg transition-colors">
-              <RefreshCw className={clsx("w-3.5 h-3.5", loading && "animate-spin")} /> Làm mới
-            </button>
-          </div>
+        {/* Top bar: update time + refresh */}
+        <div className="flex items-center justify-end gap-3">
+          {lastUpdated && (
+            <span className="text-xs text-gray-500 bg-[#1C1C36] px-3 py-1.5 rounded-full border border-white/10">
+              Cập nhật: <span className="text-gray-300 font-semibold">{lastUpdated.toLocaleTimeString("vi-VN")}</span>
+            </span>
+          )}
+          <button onClick={loadData} disabled={loading}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1C1C36] hover:bg-white/10 text-gray-300 text-xs rounded-lg border border-white/10 transition-colors">
+            <RefreshCw className={clsx("w-3.5 h-3.5", loading && "animate-spin")} /> Làm mới
+          </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2">
           <button onClick={() => setActiveTab("combined")}
-            className={clsx("px-4 py-1.5 rounded-lg text-sm font-medium transition-colors",
-              activeTab === "combined" ? "border border-white text-white shadow-[0_0_8px_rgba(255,255,255,0.6)] bg-black" : "border border-white/20 text-gray-400 hover:text-white hover:border-white/50 bg-black")}>
+            className={clsx("px-5 py-2 rounded-full text-sm font-bold transition-all",
+              activeTab === "combined" ? "bg-primary text-background" : "border border-white/20 text-gray-400 hover:text-white hover:border-white/50")}>
             🏆 Top Picks (Kỹ thuật + AI)
           </button>
           <button onClick={() => setActiveTab("ai")}
-            className={clsx("px-4 py-1.5 rounded-lg text-sm font-medium transition-colors",
-              activeTab === "ai" ? "border border-white text-white shadow-[0_0_8px_rgba(255,255,255,0.6)] bg-black" : "border border-white/20 text-gray-400 hover:text-white hover:border-white/50 bg-black")}>
+            className={clsx("px-5 py-2 rounded-full text-sm font-bold transition-all",
+              activeTab === "ai" ? "bg-primary text-background" : "border border-white/20 text-gray-400 hover:text-white hover:border-white/50")}>
             🤖 Bảng Xếp hạng AI
           </button>
         </div>
@@ -356,56 +347,56 @@ export default function SwingPicksPage() {
           /* ── AI RANKING TABLE ── */
           <>
             {!hasAI ? (
-              <div className="text-center py-20 rounded-xl border border-white/80 bg-black shadow-[0_0_8px_rgba(255,255,255,0.4)]">
-                <Brain className="w-12 h-12 text-purple-700 mx-auto mb-4" />
+              <div className="text-center py-20 rounded-2xl border border-white/10 bg-[#1C1C36]">
+                <Brain className="w-12 h-12 text-primary/40 mx-auto mb-4" />
                 <p className="text-white font-semibold mb-2">Model AI chưa được train</p>
                 <p className="text-gray-400 text-sm mb-4">Chạy script bên dưới trong thư mục backend:</p>
-                <div className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 inline-block text-left text-xs font-mono text-gray-300">
-                  <p className="mb-1 text-gray-500">// Copy và chạy TỪNG DÒNG MỘT (hoặc dùng dấu chấm phẩy)</p>
+                <div className="bg-background border border-white/10 rounded-lg px-4 py-3 inline-block text-left text-xs font-mono text-gray-300">
+                  <p className="mb-1 text-gray-500">// Copy và chạy TỪNG DÒNG MỘT</p>
                   <p>cd backend</p>
                   <p>.\venv\Scripts\activate</p>
                   <p>python train_model.py</p>
                 </div>
               </div>
             ) : (
-              <div className="overflow-x-auto rounded-xl border border-white/80 bg-black shadow-[0_0_8px_rgba(255,255,255,0.4)]">
+              <div className="overflow-x-auto rounded-2xl border border-white/10">
                 <table className="min-w-full text-sm text-left">
-                  <thead className="text-xs text-gray-500 uppercase bg-black border-b border-white/50">
+                  <thead className="text-xs text-gray-500 uppercase tracking-widest bg-[#1C1C36] border-b border-white/10">
                     <tr>
-                      <th className="px-4 py-3 w-8">#</th>
-                      <th className="px-4 py-3">Mã CK</th>
-                      <th className="px-4 py-3">Ngành</th>
-                      <th className="px-4 py-3 text-right">Giá</th>
-                      <th className="px-4 py-3">AI 5 phiên</th>
-                      <th className="px-4 py-3">Tín hiệu</th>
+                      <th className="px-5 py-4 w-8">#</th>
+                      <th className="px-5 py-4">Mã CK</th>
+                      <th className="px-5 py-4">Ngành</th>
+                      <th className="px-5 py-4 text-right">Giá</th>
+                      <th className="px-5 py-4">AI 5 phiên</th>
+                      <th className="px-5 py-4">Tín hiệu</th>
                     </tr>
                   </thead>
                   <tbody>
                     {predictions.map((p, idx) => {
-                      const barColor = (v: number) => v > 1.5 ? "bg-green-500" : v > 0.3 ? "bg-amber-500" : "bg-red-500";
+                      const barColor = (v: number) => v > 1.5 ? "bg-emerald-500" : v > 0.3 ? "bg-amber-500" : "bg-red-500";
                       const ScoreBar = ({ value }: { value: number }) => {
                         const pct = Math.min(Math.max(((value + 4) / 8) * 100, 0), 100);
                         return (
                           <div className="flex items-center gap-2">
-                            <div className="w-16 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                            <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
                               <div className={clsx("h-full rounded-full", barColor(value))} style={{ width: `${pct}%` }} />
                             </div>
                             <span className={clsx("text-xs font-mono font-semibold",
-                              value > 1.5 ? "text-green-400" : value > 0.3 ? "text-amber-400" : "text-red-400"
+                              value > 1.5 ? "text-emerald-400" : value > 0.3 ? "text-amber-400" : "text-red-400"
                             )}>{value > 0 ? "+" : ""}{value.toFixed(2)}%</span>
                           </div>
                         );
                       };
-                      const sigCfg = { "Mua mới": "text-green-300 bg-green-900/40 border-green-700/50", "Nắm giữ": "text-amber-300 bg-amber-900/40 border-amber-700/50", "Bán / Tránh": "text-red-300 bg-red-900/40 border-red-700/50" }[p.signal] ?? "text-gray-400";
+                      const sigCfg = { "Mua mới": "text-emerald-300 bg-emerald-900/40 border-emerald-700/50", "Nắm giữ": "text-amber-300 bg-amber-900/40 border-amber-700/50", "Bán / Tránh": "text-red-300 bg-red-900/40 border-red-700/50" }[p.signal] ?? "text-gray-400";
                       return (
-                        <tr key={p.ticker} className={clsx("border-b border-white/20 hover:bg-white/10 bg-black", idx % 2 === 0 ? "" : "")}>
-                          <td className="px-4 py-3 text-gray-600 text-xs font-mono">{p.rank}</td>
-                          <td className="px-4 py-3"><span className="font-black text-white text-base">{p.ticker}</span></td>
-                          <td className="px-4 py-3 text-gray-500 text-xs">{p.sector}</td>
-                          <td className="px-4 py-3 text-right text-gray-300 font-mono">{p.price > 0 ? `${p.price.toFixed(1)}k` : "—"}</td>
-                          <td className="px-4 py-3"><ScoreBar value={p.score_5} /></td>
-                          <td className="px-4 py-3">
-                            <span className={clsx("text-xs font-semibold px-2 py-0.5 rounded-full border", sigCfg)}>{p.signal}</span>
+                        <tr key={p.ticker} className="border-b border-white/5 hover:bg-white/5 transition-colors bg-background">
+                          <td className="px-5 py-3 text-gray-600 text-xs font-mono">{p.rank}</td>
+                          <td className="px-5 py-3"><span className="font-black text-white text-base">{p.ticker}</span></td>
+                          <td className="px-5 py-3 text-gray-500 text-xs">{p.sector}</td>
+                          <td className="px-5 py-3 text-right text-gray-300 font-mono">{p.price > 0 ? `${p.price.toFixed(1)}k` : "—"}</td>
+                          <td className="px-5 py-3"><ScoreBar value={p.score_5} /></td>
+                          <td className="px-5 py-3">
+                            <span className={clsx("text-xs font-bold px-2.5 py-1 rounded-full border", sigCfg)}>{p.signal}</span>
                           </td>
                         </tr>
                       );

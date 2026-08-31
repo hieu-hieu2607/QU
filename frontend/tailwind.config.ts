@@ -9,8 +9,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#0a0a0a",
-        foreground: "#ededed",
+        background: "#17172B",
+        foreground: "#FFFFFF",
+        primary: "#F5FFAB",
+        secondary: "#3431A5",
+        dark: "#17172B",
+      },
+      fontFamily: {
+        sans: ['Satoshi', 'sans-serif'],
       },
     },
   },

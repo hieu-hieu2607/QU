@@ -44,24 +44,24 @@ function Th({ label, col, sortConfig, onSort }: {
 }
 
 function StockRow({ row, idx }: { row: StockData; idx: number }) {
-  const pct = (v: number | null) => {
-  if (v == null) return <span className="text-gray-500">—</span>;
-  return (
-    <span className={v > 0 ? "text-green-400" : v < 0 ? "text-red-400" : "text-gray-500"}>
-      {v > 0 ? "+" : ""}{v.toFixed(1)}%
-    </span>
-  );
-};
+  const pct = (v: number | null | undefined) => {
+    if (v == null) return <span className="text-gray-500">—</span>;
+    return (
+      <span className={v > 0 ? "text-green-400" : v < 0 ? "text-red-400" : "text-gray-500"}>
+        {v > 0 ? "+" : ""}{v.toFixed(1)}%
+      </span>
+    );
+  };
   return (
     <tr className={clsx("border-b border-white/20 hover:bg-white/10 transition-colors", idx % 2 === 0 ? "bg-black" : "bg-white/5")}>
       <td className="px-3 py-2.5 font-bold text-white">{row.ticker}</td>
-      <td className="px-3 py-2.5 text-blue-400 font-medium{row.price?.toFixed(1) ?? "—"}k</td>
-      <td className={clsx("px-3 py-2.5 font-medium", row.rsi > 70 ? "text-red-400" : row.rsi < 30 ? "text-green-400" : "text-gray-300")}>
-        {row.rsi.toFixed(1)}
+      <td className="px-3 py-2.5 text-blue-400 font-medium">{row.price?.toFixed(1) ?? "—"}k</td>
+      <td className={clsx("px-3 py-2.5 font-medium", (row.rsi ?? 50) > 70 ? "text-red-400" : (row.rsi ?? 50) < 30 ? "text-green-400" : "text-gray-300")}>
+        {row.rsi?.toFixed(1) ?? "—"}
       </td>
       <td className="px-3 py-2.5">
         <span className={clsx("inline-flex items-center gap-0.5", row.macd_trend === "UP" ? "text-green-400" : "text-red-400")}>
-          {row.macd.toFixed(2)}{row.macd_trend === "UP" ? "↑" : "↓"}
+          {row.macd?.toFixed(2) ?? "—"}{row.macd_trend === "UP" ? "↑" : "↓"}
         </span>
       </td>
       <td className="px-3 py-2.5">
@@ -73,19 +73,19 @@ function StockRow({ row, idx }: { row: StockData; idx: number }) {
       </td>
       <td className="px-3 py-2.5">
         <span className={clsx("inline-flex items-center gap-0.5", row.adx_trend === "UP" ? "text-green-400" : "text-red-400")}>
-          {row.adx.toFixed(1)}{row.adx_trend === "UP" ? "↑" : "↓"}
+          {row.adx?.toFixed(1) ?? "—"}{row.adx_trend === "UP" ? "↑" : "↓"}
         </span>
       </td>
-      <td className="px-3 py-2.5 text-gray-300">{row.bollinger_b.toFixed(2)}</td>
-      <td className="px-3 py-2.5 text-gray-300">{row.atr_pct.toFixed(1)}%</td>
-      <td className={clsx("px-3 py-2.5 font-medium", row.vol_ratio > 1.5 ? "text-yellow-400" : "text-gray-300")}>
-        {row.vol_ratio.toFixed(2)}x
+      <td className="px-3 py-2.5 text-gray-300">{row.bollinger_b?.toFixed(2) ?? "—"}</td>
+      <td className="px-3 py-2.5 text-gray-300">{row.atr_pct?.toFixed(1) ?? "—"}%</td>
+      <td className={clsx("px-3 py-2.5 font-medium", (row.vol_ratio ?? 0) > 1.5 ? "text-yellow-400" : "text-gray-300")}>
+        {row.vol_ratio?.toFixed(2) ?? "—"}x
       </td>
       <td className="px-3 py-2.5">{pct(row.rs_5d)}</td>
       <td className="px-3 py-2.5">{pct(row.pct_change_5d)}</td>
-      <td className="px-3 py-2.5 text-purple-400">1:{row.rr_ratio.toFixed(1)}</td>
-      <td className="px-3 py-2.5 text-gray-300">{row.pe > 0 ? row.pe.toFixed(1) : "—"}</td>
-      <td className="px-3 py-2.5 text-gray-300">{row.roe > 0 ? row.roe.toFixed(1) + "%" : "—"}</td>
+      <td className="px-3 py-2.5 text-purple-400">1:{row.rr_ratio?.toFixed(1) ?? "—"}</td>
+      <td className="px-3 py-2.5 text-gray-300">{row.pe != null && row.pe > 0 ? row.pe.toFixed(1) : "—"}</td>
+      <td className="px-3 py-2.5 text-gray-300">{row.roe != null && row.roe > 0 ? row.roe.toFixed(1) + "%" : "—"}</td>
     </tr>
   );
 }

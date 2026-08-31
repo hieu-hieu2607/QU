@@ -40,7 +40,7 @@ export default function PortfolioOptimizer() {
   const [totalCash, setTotalCash] = useState(100000000);
 
   useEffect(() => {
-    fetch("https://qu-backend-e9qw.onrender.com/api/portfolio")
+    fetch("http://localhost:8000/api/portfolio")
       .then((r) => { if (!r.ok) throw new Error("API lỗi " + r.status); return r.json(); })
       .then((d) => { setData(d); setLoading(false); })
       .catch((e) => { setError(e.message); setLoading(false); });
@@ -60,16 +60,16 @@ export default function PortfolioOptimizer() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center">
-        <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
         <p className="text-gray-400">Đang tính toán phân bổ vốn tối ưu...</p>
       </div>
     </div>
   );
 
   if (error) return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center text-rose-400 space-y-2">
         <p className="text-2xl">Không thể tải dữ liệu</p>
         <p className="text-sm text-gray-500">{error}</p>
@@ -78,50 +78,43 @@ export default function PortfolioOptimizer() {
   );
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="p-4 md:p-8">
-        <div className="max-w-5xl mx-auto space-y-8">
-          <div className="text-center space-y-2">
-            <p className="text-xs uppercase tracking-widest text-white font-semibold">Giai đoạn 4 — Quant Portfolio</p>
-            <h1 className="text-3xl md:text-4xl font-bold text-white">Tối Ưu Phân Bổ Vốn</h1>
-            <p className="text-gray-400 text-sm max-w-xl mx-auto">
-              Kết hợp <span className="text-white font-medium">Kelly Criterion</span> và{" "}
-              <span className="text-white font-medium">Markowitz Risk Parity</span> để tính
-              tỷ trọng vốn tối ưu dựa trên dự báo AI và biến động thực tế.
-            </p>
-          </div>
+        <div className="max-w-5xl mx-auto space-y-6">
 
-          <div className="bg-black border border-white/50 shadow-[0_0_8px_rgba(255,255,255,0.2)] rounded-2xl p-5">
+          {/* Capital Input */}
+          <div className="bg-[#1C1C36] border border-white/10 rounded-2xl p-5">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <div className="flex-1">
-                <label className="text-xs text-gray-400 uppercase tracking-wide">Tổng vốn (VND)</label>
+                <label className="text-xs text-gray-500 uppercase tracking-widest font-bold">Tổng vốn (VND)</label>
                 <input
                   type="number"
                   value={totalCash}
                   onChange={(e) => setTotalCash(Number(e.target.value))}
-                  className="mt-1 w-full bg-white/10 border border-white/20 text-white rounded-xl px-4 py-2 text-lg focus:outline-none focus:ring-1 focus:ring-white focus:border-white"
+                  className="mt-2 w-full bg-background border border-white/10 text-white rounded-xl px-4 py-3 text-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                   step={10000000}
                 />
               </div>
               <div className="grid grid-cols-3 gap-3 sm:min-w-72">
-                <div className="text-center bg-black border border-white/50 shadow-[0_0_8px_rgba(255,255,255,0.4)] rounded-xl p-3">
-                  <p className="text-xs text-gray-400">Phân bổ</p>
-                  <p className="text-lg font-bold text-white">{totalAllocated.toFixed(1)}%</p>
+                <div className="text-center bg-background border border-white/10 rounded-xl p-3">
+                  <p className="text-xs text-gray-500 mb-1 uppercase tracking-widest">Phân bổ</p>
+                  <p className="text-xl font-black text-primary">{totalAllocated.toFixed(1)}%</p>
                 </div>
-                <div className="text-center bg-black border border-white/50 shadow-[0_0_8px_rgba(255,255,255,0.4)] rounded-xl p-3">
-                  <p className="text-xs text-gray-400">Tiền mặt</p>
-                  <p className="text-lg font-bold text-white">{cashReserved.toFixed(1)}%</p>
+                <div className="text-center bg-background border border-white/10 rounded-xl p-3">
+                  <p className="text-xs text-gray-500 mb-1 uppercase tracking-widest">Tiền mặt</p>
+                  <p className="text-xl font-black text-white">{cashReserved.toFixed(1)}%</p>
                 </div>
-                <div className="text-center bg-black border border-white/50 shadow-[0_0_8px_rgba(255,255,255,0.4)] rounded-xl p-3">
-                  <p className="text-xs text-gray-400">Số mã</p>
-                  <p className="text-lg font-bold text-white">{data.length}</p>
+                <div className="text-center bg-background border border-white/10 rounded-xl p-3">
+                  <p className="text-xs text-gray-500 mb-1 uppercase tracking-widest">Số mã</p>
+                  <p className="text-xl font-black text-white">{data.length}</p>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Portfolio List */}
           <div className="space-y-3">
-            <h2 className="text-lg font-bold text-white">Danh Mục Đề Xuất</h2>
+            <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Danh Mục Đề Xuất</h2>
             {data.map((item, idx) => {
               const riskCfg = getRiskCfg(item.risk_level);
               const money = Math.round((item.recommended_pct / 100) * totalCash);
@@ -129,70 +122,65 @@ export default function PortfolioOptimizer() {
               const shares = Math.floor(money / sharePrice);
 
               return (
-                <div key={item.ticker} className="bg-black border border-white/50 shadow-[0_0_8px_rgba(255,255,255,0.2)] rounded-2xl p-4 md:p-5 hover:border-white/80 transition-colors">
-                  <div className="flex flex-wrap items-center gap-3 mb-3">
-                    <span className="text-gray-500 text-sm font-mono">#{idx + 1}</span>
-                    <span className="text-xl font-bold text-white">{item.ticker}</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full border border-white/30 text-white bg-black">{item.sector}</span>
+                <div key={item.ticker} className="bg-[#1C1C36] border border-white/10 rounded-2xl p-5 hover:border-white/30 transition-colors">
+                  <div className="flex flex-wrap items-center gap-3 mb-4">
+                    <span className="text-gray-600 text-sm font-mono font-bold">#{idx + 1}</span>
+                    <span className="text-2xl font-black text-white">{item.ticker}</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full border border-white/20 text-gray-300">{item.sector}</span>
                     {riskCfg && (
                       <span className={`text-xs px-2 py-0.5 rounded-full border ${riskCfg.bg} ${riskCfg.color}`}>
                         {riskCfg.icon} Rủi ro {item.risk_level}
                       </span>
                     )}
-                    <span className="ml-auto text-xs text-gray-400">
-                      Giá: <span className="text-white font-medium">{item.price.toFixed(1)}K</span>
+                    <span className="ml-auto text-xs text-gray-500">
+                      Giá: <span className="text-white font-bold">{item.price.toFixed(1)}K</span>
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 text-sm">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 text-sm">
                     <div>
-                      <p className="text-xs text-gray-500">Điểm AI (Rank)</p>
-                      <p className={`font-bold ${item.score_5 >= 50 ? "text-emerald-400" : "text-amber-400"}`}>
+                      <p className="text-xs text-gray-600 uppercase tracking-wider mb-1">Điểm AI (Rank)</p>
+                      <p className={`font-black text-lg ${item.score_5 >= 50 ? "text-primary" : "text-amber-400"}`}>
                         {item.score_5}/100
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Biên độ dao động</p>
+                      <p className="text-xs text-gray-600 uppercase tracking-wider mb-1">Biên độ dao động</p>
                       <p className="font-bold text-amber-300">+/-{item.volatility_5d}%</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Nắm giữ tối đa</p>
-                      <p className="font-bold text-blue-400">{item.hold_sessions}</p>
+                      <p className="text-xs text-gray-600 uppercase tracking-wider mb-1">Nắm giữ tối đa</p>
+                      <p className="font-bold text-white">{item.hold_sessions}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Chiến lược mua</p>
-                      <p className="font-bold text-purple-400">
+                      <p className="text-xs text-gray-600 uppercase tracking-wider mb-1">Chiến lược mua</p>
+                      <p className="font-bold text-primary text-sm">
                         {item.volatility_5d > 3.5 ? "Chia 2 phần (Canh đỏ)" : "Mua 1 lần (Giá ht)"}
                       </p>
                     </div>
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     <div className="flex justify-between items-center text-xs">
-                      <span className="text-gray-400">Phân bổ đề xuất</span>
+                      <span className="text-gray-500 uppercase tracking-wider">Phân bổ đề xuất</span>
                       <div className="text-right">
-                        <span className="text-white font-bold text-base">{item.recommended_pct}%</span>
-                        <span className="text-gray-400 ml-2">~ {formatMoney(money)} VND</span>
-                        <span className="text-blue-400 font-bold ml-2">
+                        <span className="text-white font-black text-lg">{item.recommended_pct}%</span>
+                        <span className="text-gray-400 ml-2 text-xs">~ {formatMoney(money)} VND</span>
+                        <span className="text-primary font-bold ml-2 text-xs">
                           {shares > 0 ? `(Mua: ${shares.toLocaleString()} cp)` : ""}
                         </span>
                       </div>
                     </div>
-                    <PortfolioBar pct={item.recommended_pct} max={maxPct} color="bg-white shadow-[0_0_5px_rgba(255,255,255,0.8)]" />
+                    <PortfolioBar pct={item.recommended_pct} max={maxPct} color="bg-primary" />
                   </div>
                 </div>
               );
             })}
           </div>
 
-          <div className="bg-black border border-white/20 rounded-xl p-4">
-            <p className="text-xs text-white leading-relaxed">
-              Lưu ý: Đây là kết quả tính toán định lượng dựa trên dữ liệu lịch sử và dự báo AI. Không phải lời khuyên đầu tư. Thị trường chứng khoán luôn tiềm ẩn rủi ro.
+          {/* Disclaimer */}
+          <div className="bg-[#1C1C36] border border-white/10 rounded-xl p-4">
+            <p className="text-xs text-gray-500 leading-relaxed">
+              ⚠️ Đây là kết quả tính toán định lượng dựa trên dữ liệu lịch sử và dự báo AI. Không phải lời khuyên đầu tư. Thị trường chứng khoán luôn tiềm ẩn rủi ro.
             </p>
-          </div>
-
-          <div className="text-center pb-4">
-            <a href="/swing-picks" className="text-sm text-white hover:text-gray-300 border-b border-white underline-offset-4">
-              Quay lại Swing Picks
-            </a>
           </div>
         </div>
       </div>

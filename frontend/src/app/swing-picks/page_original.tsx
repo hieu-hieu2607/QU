@@ -7,7 +7,7 @@ import { Brain, TrendingUp, TrendingDown, Minus, RefreshCw, ShieldCheck, Zap, Ta
 import { clsx } from "clsx";
 import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://qu-backend-e9qw.onrender.com/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
 interface AIPrediction {
   ticker: string; sector: string; price: number;

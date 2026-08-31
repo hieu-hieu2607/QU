@@ -1,7 +1,11 @@
 fastapi
 uvicorn
-vnstock3
-ipython
 pandas
 numpy
+yfinance
+scikit-learn
+joblib
+scipy
+xgboost
+lightgbm
 pydantic

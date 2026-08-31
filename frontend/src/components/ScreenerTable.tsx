@@ -44,15 +44,18 @@ function Th({ label, col, sortConfig, onSort }: {
 }
 
 function StockRow({ row, idx }: { row: StockData; idx: number }) {
-  const pct = (v: number) => (
+  const pct = (v: number | null) => {
+  if (v == null) return <span className="text-gray-500">—</span>;
+  return (
     <span className={v > 0 ? "text-green-400" : v < 0 ? "text-red-400" : "text-gray-500"}>
       {v > 0 ? "+" : ""}{v.toFixed(1)}%
     </span>
   );
+};
   return (
     <tr className={clsx("border-b border-white/20 hover:bg-white/10 transition-colors", idx % 2 === 0 ? "bg-black" : "bg-white/5")}>
       <td className="px-3 py-2.5 font-bold text-white">{row.ticker}</td>
-      <td className="px-3 py-2.5 text-blue-400 font-medium">{row.price.toFixed(1)}k</td>
+      <td className="px-3 py-2.5 text-blue-400 font-medium{row.price?.toFixed(1) ?? "—"}k</td>
       <td className={clsx("px-3 py-2.5 font-medium", row.rsi > 70 ? "text-red-400" : row.rsi < 30 ? "text-green-400" : "text-gray-300")}>
         {row.rsi.toFixed(1)}
       </td>
